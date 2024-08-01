@@ -11,15 +11,15 @@ def run_index(index, dataset):
 def get_datasets():
   datasets = [
     'books',
-    # 'covid',
-    # 'fb',
-    # 'genome',
-    # 'history',
-    # 'libio',
-    # 'osm',
-    # 'planet',
-    # 'stack',
-    # 'wise',
+    'covid',
+    'fb',
+    'genome',
+    'history',
+    'libio',
+    'osm',
+    'planet',
+    'stack',
+    'wise',
   ]
   for dataset in datasets:
     yield f'/colddata/xding9001/li/{dataset}'
@@ -32,8 +32,8 @@ def get_index_names():
     'finedex',
     'xindex',
     'sali',
-    'artolc',
-    'btreeolc',
+    'verlib_arttree',
+    'verlib_btree',
     'fast',
   ]
 

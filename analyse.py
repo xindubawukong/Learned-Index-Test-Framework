@@ -23,7 +23,7 @@ def main():
     dataset = get_attr(lines, 'Dataset:').split('/')[-1]
     print(index, dataset)
     mops = float(get_attr(lines, 'Average Mops:'))
-    mem = float(get_attr(lines, 'Maximum resident set size (kbytes):'))
+    mem = float(get_attr(lines, 'Maximum resident set size (kbytes):')) / 1000000
     print(mops, mem)
     num_fgds = 0
     if index == 'fh_index_ro':
@@ -33,7 +33,7 @@ def main():
 
     if index not in res:
       res[index] = [index]
-    res[index].append(str(mops))
+    res[index].append(str(mem))
     if dataset not in datasets:
       datasets.append(dataset)
   print(','.join(datasets))
