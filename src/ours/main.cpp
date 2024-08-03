@@ -24,6 +24,7 @@ vector<pair<uint64_t, uint64_t>> LoadEntries(const string &path) {
   });
   cout << "Dataset loaded" << endl;
   cout << "# of entries: " << entries.size() << endl;
+  delete[] keys;
   return entries;
 }
 
@@ -52,13 +53,13 @@ int main(int argc, char **argv) {
   vector<int> res(n);
   for (int r = 0; r < FLAGS_round; r++) {
     cout << "\nRound: " << r << endl;
-    auto queries = parlay::random_shuffle(entries);
+    auto ids = parlay::random_permutation(n);
 
     parlay::internal::timer timer;
     parlay::parallel_for(0, n, [&](int i) {
       uint64_t val;
-      bool ok = index->get(queries[i].first, val);
-      res[i] = (ok && val == queries[i].second);
+      bool ok = index->get(entries[ids[i]].first, val);
+      res[i] = (ok && val == ids[i]);
     });
     double duration = timer.stop();
     if (parlay::any_of(res, [&](int x) { return x == 0; }))

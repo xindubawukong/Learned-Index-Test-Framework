@@ -156,7 +156,7 @@ long long load_binary_data(T *&data, long long length, const std::string &file_p
     T max_size;
     is.read(reinterpret_cast<char*>(&max_size), sizeof(T));
 
-    std::cout << max_size << std::endl;
+    std::cout << "max_size: " << max_size << std::endl;
 
     // create array
     if(length < 0 || length > max_size) length = max_size;
