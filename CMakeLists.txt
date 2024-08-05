@@ -45,30 +45,32 @@ include_directories(SYSTEM src/competitor/hot/src/libs/idx/content-helpers/inclu
 # add_subdirectory(src/competitor/masstree)
 
 # microbench
-add_executable(microbench
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/benchmark/microbench.cpp
-    )
+# add_executable(microbench
+#         ${CMAKE_CURRENT_SOURCE_DIR}/src/benchmark/microbench.cpp
+#     )
 
-target_link_libraries(microbench
-        PRIVATE
-        # WORMHOLE
-        # WORMHOLEU64
-        # MASSTREE
+# target_link_libraries(microbench
+#         PRIVATE
+#         # WORMHOLE
+#         # WORMHOLEU64
+#         # MASSTREE
+# )
+
+# target_link_libraries(microbench PUBLIC ${JEMALLOC_LIBRARIES} ${MKL_LIBRARIES} TBB::tbb)
+
+
+add_executable(run_ro
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/ours/run_ro.cpp
+)
+target_link_libraries(run_ro PUBLIC
+        gflags::gflags
+        ${JEMALLOC_LIBRARIES} ${MKL_LIBRARIES} TBB::tbb
 )
 
-target_link_libraries(microbench PUBLIC ${JEMALLOC_LIBRARIES} ${MKL_LIBRARIES} TBB::tbb)
-
-
-add_executable(main
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/ours/main.cpp
-    )
-target_link_libraries(main
-        PRIVATE
-        # WORMHOLE
-        # WORMHOLEU64
-        # MASSTREE
+add_executable(run_rw
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/ours/run_rw.cpp
 )
-target_link_libraries(main PUBLIC
+target_link_libraries(run_rw PUBLIC
         gflags::gflags
         ${JEMALLOC_LIBRARIES} ${MKL_LIBRARIES} TBB::tbb
 )

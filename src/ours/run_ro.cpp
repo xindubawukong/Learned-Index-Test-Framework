@@ -1,37 +1,15 @@
-#include "../benchmark/utils.h"
+
 #include "../competitor/competitor.h"
 #include "gflags/gflags.h"
 #include "parlay/parallel.h"
 #include "parlay/primitives.h"
+#include "utils.h"
 
 using namespace std;
 
 DEFINE_string(index, "fh_index_ro", "index name");
 DEFINE_string(dataset, "", "path to dataset");
 DEFINE_int32(round, 5, "# of rounds");
-
-vector<pair<uint64_t, uint64_t>> LoadEntries(const string &path) {
-  cout << "Loading dataset from " << path << endl;
-  vector<pair<uint64_t, uint64_t>> entries;
-  uint64_t *keys;
-  auto n = load_binary_data(keys, -1, path);
-  parlay::sort_inplace(parlay::make_slice(keys, keys + n));
-  n = unique(keys, keys + n) - keys;
-  entries.resize(n);
-  parlay::parallel_for(0, n, [&](size_t i) {
-    entries[i].first = keys[i];
-    entries[i].second = i;
-  });
-  cout << "Dataset loaded" << endl;
-  cout << "# of entries: " << entries.size() << endl;
-  delete[] keys;
-  return entries;
-}
-
-const vector<string> index_names = {
-    "empty",    "lipp",   "finedex",     "sali",
-    "btreeolc", "artolc", "fh_index_ro", "xindex",
-};
 
 int main(int argc, char **argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
@@ -40,7 +18,7 @@ int main(int argc, char **argv) {
   cout << "Dataset: " << FLAGS_dataset << endl;
   assert(FLAGS_round > 1);
 
-  vector<pair<uint64_t, uint64_t>> entries = LoadEntries(FLAGS_dataset);
+  auto entries = LoadEntries(FLAGS_dataset);
   auto n = entries.size();
 
   cout << "Start bulk_load" << endl;

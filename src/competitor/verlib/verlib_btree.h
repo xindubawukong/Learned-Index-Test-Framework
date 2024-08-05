@@ -27,7 +27,9 @@ public:
     }
   }
 
-  bool put(KEY_TYPE key, PAYLOAD_TYPE value, Param *param = nullptr) {}
+  bool put(KEY_TYPE key, PAYLOAD_TYPE value, Param *param = nullptr) {
+    return map.insert(key, value);
+  }
 
   bool update(KEY_TYPE key, PAYLOAD_TYPE value, Param *param = nullptr) {}
 
