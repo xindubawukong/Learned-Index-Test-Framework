@@ -53,7 +53,14 @@ public:
 
   size_t scan(KEY_TYPE key_low_bound, size_t key_num,
               std::pair<KEY_TYPE, PAYLOAD_TYPE> *result,
-              Param *param = nullptr) {}
+              Param *param = nullptr) {
+    size_t lb = index.lower_bound(key_low_bound);
+    size_t cnt = 0;
+    while (lb < kvs.size() && cnt < key_num) {
+      result[cnt++] = kvs[lb++];
+    }
+    return cnt;
+  }
 
   long long memory_consumption() {}
 

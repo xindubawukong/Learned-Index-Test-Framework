@@ -686,6 +686,45 @@ struct ordered_map {
       range_internal(root, add, start, end);
   }
 
+  template<typename AddF>
+  static bool range_scan_internal(node* a, AddF& add, const K& start, 
+  size_t limit, size_t& cnt) {
+    while (true) {
+      if (a->is_leaf) {
+    leaf* la = (leaf*) a;
+    int s = la->prev(start, 0);
+    int e = la->size;
+    // int e = la->prev(end, s);
+    for (int i = s; i < e; i++) {
+      add(la->keyvals[i].key, la->keyvals[i].value);
+      cnt++;
+      if (cnt >= limit) return true;
+#ifdef LazyStamp
+      if (verlib::aborted) return false;
+#endif
+    }
+    return true;
+      }
+      int s = a->find(start);
+      int e = a->size - 1;
+      if (s == e) a = a->children[s].read_snapshot();
+      else {
+    for (int i = s; i <= e; i++) {
+      if (!range_scan_internal(a->children[i].read_snapshot(), add, start, limit, cnt))
+        return false;
+      if (cnt >= limit) return true;
+    }
+    return true;
+      }
+    }
+  }
+
+  template<typename AddF>
+  void range_scan_(AddF& add, const K& start, size_t limit) {
+    size_t cnt = 0;
+    range_scan_internal(root, add, start, limit, cnt);
+  }
+
   std::optional<std::optional<V>> try_find(const K& k) {
     using ot = std::optional<std::optional<V>>;
     // auto [p, cidx, l] = find_no_fix(root, k);

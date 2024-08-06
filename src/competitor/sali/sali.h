@@ -8,7 +8,7 @@ public:
 
   void bulk_load(std::pair<KEY_TYPE, PAYLOAD_TYPE> *key_value, size_t num,
                  Param *param = nullptr) {
-    index.bulk_load(key_value, num);
+    index.bulk_load(key_value, (int) num);
   }
 
   bool get(KEY_TYPE key, PAYLOAD_TYPE &val, Param *param = nullptr) {
@@ -31,7 +31,7 @@ public:
   size_t scan(KEY_TYPE key_low_bound, size_t key_num,
               std::pair<KEY_TYPE, PAYLOAD_TYPE> *result,
               Param *param = nullptr) {
-    assert(0);
+    return index.range_query_len(result, key_low_bound, (int) key_num);
   }
 
   long long memory_consumption() { return index.total_size(); }

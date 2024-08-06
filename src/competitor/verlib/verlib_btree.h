@@ -37,7 +37,14 @@ public:
 
   size_t scan(KEY_TYPE key_low_bound, size_t key_num,
               std::pair<KEY_TYPE, PAYLOAD_TYPE> *result,
-              Param *param = nullptr) {}
+              Param *param = nullptr) {
+    size_t cnt = 0;
+    auto f = [&](KEY_TYPE key, PAYLOAD_TYPE value) {
+      result[cnt++] = {key, value};
+    };
+    map.range_scan_(f, key_low_bound, key_num);
+    return cnt;
+  }
 
   long long memory_consumption() {}
 

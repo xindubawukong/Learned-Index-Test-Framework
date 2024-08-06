@@ -28,7 +28,7 @@ add_compile_options(
         -DNoHelp  # for verlib
         -g
         -O3 -march=native
-        -Wall -Wextra
+        # -Wall -Wextra
         -fno-omit-frame-pointer -ggdb -mbmi -mlzcnt
         -mavx -mavx2 -mavx512f
 )
@@ -59,18 +59,10 @@ include_directories(SYSTEM src/competitor/hot/src/libs/idx/content-helpers/inclu
 # target_link_libraries(microbench PUBLIC ${JEMALLOC_LIBRARIES} ${MKL_LIBRARIES} TBB::tbb)
 
 
-add_executable(run_ro
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/ours/run_ro.cpp
+add_executable(test
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/ours/test.cpp
 )
-target_link_libraries(run_ro PUBLIC
-        gflags::gflags
-        ${JEMALLOC_LIBRARIES} ${MKL_LIBRARIES} TBB::tbb
-)
-
-add_executable(run_rw
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/ours/run_rw.cpp
-)
-target_link_libraries(run_rw PUBLIC
+target_link_libraries(test PUBLIC
         gflags::gflags
         ${JEMALLOC_LIBRARIES} ${MKL_LIBRARIES} TBB::tbb
 )

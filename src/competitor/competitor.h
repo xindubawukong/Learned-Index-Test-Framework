@@ -21,6 +21,7 @@
 #include "iostream"
 
 #include "../ours/empty_index.h"
+#include "../ours/naive_index_interface.h"
 #include "../ours/fh_index_ro_interface.h"
 #include "./sali/sali.h"
 #include "./fast/fast.h"
@@ -30,7 +31,13 @@
 template<class KEY_TYPE, class PAYLOAD_TYPE>
 indexInterface<KEY_TYPE, PAYLOAD_TYPE> *get_index(std::string index_type) {
   indexInterface<KEY_TYPE, PAYLOAD_TYPE> *index;
-  if (index_type == "alexol") {
+  if (index_type == "empty") {
+    index = new EmptyIndexInterface<KEY_TYPE, PAYLOAD_TYPE>;
+  }
+  else if (index_type == "naive") {
+    index = new NaiveIndexInterface<KEY_TYPE, PAYLOAD_TYPE>;
+  }
+  else if (index_type == "alexol") {
     index = new alexolInterface<KEY_TYPE, PAYLOAD_TYPE>;
   }
   else if(index_type == "alex") {
@@ -87,9 +94,6 @@ indexInterface<KEY_TYPE, PAYLOAD_TYPE> *get_index(std::string index_type) {
   }
   else if (index_type == "sali") {
     index = new SaliInterface<KEY_TYPE, PAYLOAD_TYPE>;
-  }
-  else if (index_type == "empty") {
-    index = new EmptyIndexInterface<KEY_TYPE, PAYLOAD_TYPE>;
   }
   else if (index_type == "fast") {
     index = new FastInterface<KEY_TYPE, PAYLOAD_TYPE>;

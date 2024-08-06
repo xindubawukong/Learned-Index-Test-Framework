@@ -30,7 +30,10 @@ def get_datasets():
 def get_index_names():
   return [
     'empty',
+    'naive',
     'fh_index_ro',
+    'pgm',
+    'alex',
     'lipp',
     'finedex',
     'xindex',
