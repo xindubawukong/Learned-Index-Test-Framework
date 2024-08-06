@@ -12,7 +12,7 @@ LoadEntries(const std::string &path, size_t limit = 0) {
   auto n = load_binary_data(data, -1, path);
   parlay::sort_inplace(parlay::make_slice(data, data + n));
   auto keys = parlay::unique(parlay::make_slice(data, data + n));
-  if (limit > 0) {
+  if (limit > 0 && limit < n) {
     keys = parlay::random_shuffle(keys);
     keys.resize(limit);
     parlay::sort_inplace(keys);

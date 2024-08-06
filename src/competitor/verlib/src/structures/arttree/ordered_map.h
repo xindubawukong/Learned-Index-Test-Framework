@@ -629,6 +629,77 @@ struct ordered_map {
                    std::optional<K>(start), std::optional<K>(end), 0);
   }
 
+  template<typename AddF>
+  static void range_scan_internal(node* a, AddF& add,
+                      std::optional<K> start, std::optional<K> end, int pos, int64_t& limit) {
+    if (limit <= 0) return;
+    if (a == nullptr) return;
+    std::optional<K> empty;
+    if (a->nt == Leaf) {
+      leaf* l = (leaf*) a;
+      int s = 0;
+      int e = a->size;
+      if (start.has_value())
+        while (l->key_vals[s].key < *start) s++;
+      if (end.has_value())
+        while (l->key_vals[e-1].key > *end) e--;
+      for (int i = s; i < e; i++) {
+        add(l->key_vals[i].key, l->key_vals[i].value);
+        limit--;
+        if (limit <= 0) return;
+      }
+      return;
+    }
+    for (int i = pos; i < a->byte_num; i++) {
+      if (start == empty && end == empty) break;
+      if (start.has_value()
+          && String::get_byte(start.value(), i) > String::get_byte(a->key, i)
+          || end.has_value()
+          && String::get_byte(end.value(), i) < String::get_byte(a->key, i))
+        return;
+      if (start.has_value() &&
+          String::get_byte(start.value(), i) < String::get_byte(a->key,i)) 
+        start = empty;
+      if (end.has_value() &&
+          String::get_byte(end.value(), i) > String::get_byte(a->key, i)) {
+        end = empty;
+      }
+    }
+    int sb = start.has_value() ? String::get_byte(start.value(), a->byte_num) : 0;
+    int eb = end.has_value() ? String::get_byte(end.value(), a->byte_num) : 255;
+    if (a->nt == Full) {
+      for (int i = sb; i <= eb; i++) {
+        range_scan_internal(((full_node*) a)->children[i].read_snapshot(), add,
+                       start, end, a->byte_num, limit);
+        if (limit <= 0) return;
+      }
+    } else if (a->nt == Indirect) {
+      for (int i = sb; i <= eb; i++) {
+        indirect_node* ai = (indirect_node*) a;
+        int o = ai->idx[i];
+        if (o != -1) {
+          range_scan_internal(ai->ptr[o].read_snapshot(), add,
+                                    start, end, a->byte_num, limit);
+        }
+        if (limit <= 0) return;
+      }
+    } else { // Sparse
+      sparse_node* as = (sparse_node*) a;
+      for (int i = 0; i < as->size; i++) {
+        int b = as->keys[i];
+        if (b >= sb && b <= eb)
+          range_scan_internal(as->ptr[i].read_snapshot(), add, start, end, a->byte_num, limit);
+        if (limit <= 0) return;
+      }
+    }
+  }                       
+
+  template<typename AddF>
+  void range_scan_(AddF& add, const K& start, int64_t limit) {
+    range_scan_internal(root, add,
+                   std::optional<K>(start), std::optional<K>(), 0, limit);
+  }
+
   ordered_map() {
     auto r = full_pool.new_obj();
     r->byte_num = 0;

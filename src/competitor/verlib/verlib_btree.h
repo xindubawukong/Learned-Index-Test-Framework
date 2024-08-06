@@ -18,7 +18,7 @@ public:
   }
 
   bool get(KEY_TYPE key, PAYLOAD_TYPE &val, Param *param = nullptr) {
-    auto res = map.find(key);
+    auto res = map.find_(key);
     if (res.has_value()) {
       val = res.value();
       return true;

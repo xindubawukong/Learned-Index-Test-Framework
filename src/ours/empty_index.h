@@ -27,7 +27,9 @@ public:
 
   size_t scan(KEY_TYPE key_low_bound, size_t key_num,
               std::pair<KEY_TYPE, PAYLOAD_TYPE> *result,
-              Param *param = nullptr) {}
+              Param *param = nullptr) {
+    return 0;
+  }
 
   long long memory_consumption() {}
 };

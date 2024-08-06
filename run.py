@@ -5,8 +5,11 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def run_index(index, dataset):
   print(f'Running {index} {dataset}')
-  command = f'./build/main -dataset={dataset} -index={index}'
-  subprocess.call(f'/usr/bin/time -v numactl -i all {command} 1>> log/temp.txt 2>> log/temp.txt', shell=True)
+  test_type = 'scan'
+  num_keys = 0
+  output_file = './log/scan-0805.txt'
+  command = f'./build/test -dataset={dataset} -index={index} -test_type={test_type} -num_keys={num_keys}'
+  subprocess.call(f'/usr/bin/time -v numactl -i all {command} 1>> {output_file} 2>> {output_file}', shell=True)
 
 def get_datasets():
   datasets = [
@@ -30,17 +33,17 @@ def get_datasets():
 def get_index_names():
   return [
     'empty',
-    'naive',
+    # 'naive',
     'fh_index_ro',
+    'fast',
     'pgm',
     'alex',
     'lipp',
-    'finedex',
+    # 'finedex',
     'xindex',
     'sali',
     'verlib_arttree',
     'verlib_btree',
-    'fast',
   ]
 
 def main():
