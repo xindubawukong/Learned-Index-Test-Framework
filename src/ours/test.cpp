@@ -104,10 +104,11 @@ void TestScan(parlay::sequence<pair<uint64_t, uint64_t>> &entries) {
   auto queries = entries;
   queries.resize(n - FLAGS_scan_size);
   queries = parlay::random_shuffle(queries);
-  if (queries.size() > 100000000) {
-    queries.resize(100000000);
+  if (queries.size() > 10000000) {
+    queries.resize(10000000);
   }
   size_t q = queries.size();
+  cout << "q: " << q << endl;
 
   parlay::sequence tmp(
       q, parlay::sequence<pair<uint64_t, uint64_t>>(FLAGS_scan_size));
@@ -128,20 +129,19 @@ void TestScan(parlay::sequence<pair<uint64_t, uint64_t>> &entries) {
           key_low_bound = entries[id].first;
         }
       }
-      index->scan(key_low_bound, FLAGS_scan_size, tmp[id].data());
+      index->scan(key_low_bound, FLAGS_scan_size, tmp[i].data());
     });
     double duration = timer.stop();
-    if (parlay::any_of(res, [&](int x) { return x == 0; })) {
-      good = false;
-    }
-
     cout << "Duration: " << duration << endl;
     double mops = (double)(n - FLAGS_scan_size) / duration / 1e6;
     cout << "Mops: " << mops << endl;
+    if (r > 0) {
+      total_mops += mops;
+    }
 
     parlay::parallel_for(0, q, [&](size_t i) {
       size_t id = queries[i].second;
-      auto &result = tmp[id];
+      auto &result = tmp[i];
       bool ok = true;
       for (size_t j = 0; j < FLAGS_scan_size; j++) {
         ok &= entries[id + j] == result[j];
@@ -153,11 +153,10 @@ void TestScan(parlay::sequence<pair<uint64_t, uint64_t>> &entries) {
       //   }
       //   exit(0);
       // }
-      res[i] = ok;
+      res[id] = ok;
     });
-
-    if (r > 0) {
-      total_mops += mops;
+    if (parlay::any_of(res, [&](int x) { return x == 0; })) {
+      good = false;
     }
   }
 

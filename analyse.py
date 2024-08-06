@@ -6,7 +6,7 @@ def get_attr(lines, attr):
       return line.split(' ')[-1]
 
 def main():
-  f = open('./log/temp.txt', 'r')
+  f = open('./log/scan-0805.txt', 'r')
   all_lines = f.readlines()
   f.close()
   ids = []
@@ -33,7 +33,7 @@ def main():
 
     if index not in res:
       res[index] = [index]
-    res[index].append(str(mem))
+    res[index].append(str(mops))
     if dataset not in datasets:
       datasets.append(dataset)
   print(','.join(datasets))
