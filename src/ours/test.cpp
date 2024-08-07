@@ -133,7 +133,7 @@ void TestScan(parlay::sequence<pair<uint64_t, uint64_t>> &entries) {
     });
     double duration = timer.stop();
     cout << "Duration: " << duration << endl;
-    double mops = (double)(n - FLAGS_scan_size) / duration / 1e6;
+    double mops = (double)(queries.size()) / duration / 1e6;
     cout << "Mops: " << mops << endl;
     if (r > 0) {
       total_mops += mops;
