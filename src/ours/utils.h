@@ -2,11 +2,12 @@
 #define UTILS_H_
 
 #include "../benchmark/utils.h"
+#include "jemalloc/jemalloc.h"
 #include "parlay/primitives.h"
 
 template <typename T = int>
-parlay::sequence<std::pair<uint64_t, uint64_t>>
-LoadEntries(const std::string &path, size_t limit = 0) {
+parlay::sequence<std::pair<uint64_t, uint64_t>> LoadEntries(
+    const std::string &path, size_t limit = 0) {
   std::cout << "Loading dataset from " << path << std::endl;
   uint64_t *data;
   auto n = load_binary_data(data, -1, path);
@@ -29,4 +30,16 @@ LoadEntries(const std::string &path, size_t limit = 0) {
   return entries;
 }
 
-#endif // UTILS_H_
+template <typename T = int>
+void ReportJemallocAllocated(const std::string &s = "") {
+  size_t epoch = 1;
+  size_t sz, allocated;
+  sz = sizeof(size_t);
+  mallctl("thread.tcache.flush", NULL, NULL, NULL, 0);
+  mallctl("epoch", NULL, NULL, &epoch, sizeof(epoch));
+  mallctl("stats.allocated", &allocated, &sz, NULL, 0);
+  std::cout << "Jemalloc memory allocated (" << s << "): " << allocated
+            << std::endl;
+}
+
+#endif  // UTILS_H_

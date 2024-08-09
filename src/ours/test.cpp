@@ -6,7 +6,7 @@
 
 using namespace std;
 
-DEFINE_string(test_type, "scan", "ro/rw/scan");
+DEFINE_string(test_type, "ro", "ro/rw/scan");
 DEFINE_string(index, "fh_index_ro", "index name");
 DEFINE_string(dataset, "/colddata/xding9001/li/libio", "path to dataset");
 DEFINE_int32(round, 5, "# of rounds");
@@ -20,6 +20,7 @@ void TestReadOnly(parlay::sequence<pair<uint64_t, uint64_t>> &entries) {
   auto index = get_index<uint64_t, uint64_t>(FLAGS_index);
   index->bulk_load(entries.data(), n);
   cout << "End Bulk_load" << endl;
+  ReportJemallocAllocated();
 
   double total_mops = 0;
   bool good = true;
@@ -35,8 +36,7 @@ void TestReadOnly(parlay::sequence<pair<uint64_t, uint64_t>> &entries) {
       res[i] = (ok && val == ids[i]);
     });
     double duration = timer.stop();
-    if (parlay::any_of(res, [&](int x) { return x == 0; }))
-      good = false;
+    if (parlay::any_of(res, [&](int x) { return x == 0; })) good = false;
 
     cout << "Duration: " << duration << endl;
     double mops = (double)n / duration / 1e6;

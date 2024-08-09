@@ -23,7 +23,7 @@ def main():
     dataset = get_attr(lines, 'Dataset:').split('/')[-1]
     print(index, dataset)
     mops = float(get_attr(lines, 'Average Mops:'))
-    mem = float(get_attr(lines, 'Maximum resident set size (kbytes):')) / 1000000
+    mem = float(get_attr(lines, 'Jemalloc memory allocated')) / 1000000000
     print(mops, mem)
     num_fgds = 0
     if index == 'fh_index_ro':
