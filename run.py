@@ -50,6 +50,7 @@ def get_index_names():
 
 def main():
   subprocess.call('mkdir -p log', shell=True)
+  for test_type in ['ro', 'scan']:
     for index in get_index_names():
       for dataset in get_datasets():
         run_index(test_type, index, dataset)
