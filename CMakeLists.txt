@@ -28,7 +28,7 @@ add_compile_options(
         -DNoHelp  # for verlib
         -g
         -O3 -march=native
-        # -Wall -Wextra
+        -Wall -Wextra
         -fno-omit-frame-pointer -ggdb -mbmi -mlzcnt
         -mavx -mavx2 -mavx512f
 )

@@ -1,12 +1,13 @@
 
-def get_attr(lines, attr):
+def get_attr(lines, attr, default='0'):
   for line in lines:
     line = line.strip()
     if line.startswith(attr):
       return line.split(' ')[-1]
+  return default
 
 def main():
-  f = open('./log/scan-0805.txt', 'r')
+  f = open('./log/scan-0808.txt', 'r')
   all_lines = f.readlines()
   f.close()
   ids = []

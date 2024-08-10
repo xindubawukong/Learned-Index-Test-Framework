@@ -10,7 +10,7 @@ DEFINE_string(test_type, "ro", "ro/rw/scan");
 DEFINE_string(index, "fh_index_ro", "index name");
 DEFINE_string(dataset, "/colddata/xding9001/li/libio", "path to dataset");
 DEFINE_int32(round, 5, "# of rounds");
-DEFINE_uint64(num_keys, 100000, "# of keys");
+DEFINE_uint64(num_keys, 0, "# of keys");
 DEFINE_uint64(scan_size, 10, "scan size");
 
 void TestReadOnly(parlay::sequence<pair<uint64_t, uint64_t>> &entries) {
@@ -103,33 +103,38 @@ void TestScan(parlay::sequence<pair<uint64_t, uint64_t>> &entries) {
   bool good = true;
   auto queries = entries;
   queries.resize(n - FLAGS_scan_size);
-  queries = parlay::random_shuffle(queries);
-  if (queries.size() > 10000000) {
-    queries.resize(10000000);
-  }
-  size_t q = queries.size();
-  cout << "q: " << q << endl;
 
   parlay::sequence tmp(
-      q, parlay::sequence<pair<uint64_t, uint64_t>>(FLAGS_scan_size));
+      parlay::num_workers(),
+      parlay::sequence<pair<uint64_t, uint64_t>>(FLAGS_scan_size));
   vector<int> res(n, 1);
+  bool check = true;
   for (int r = 0; r < FLAGS_round; r++) {
     cout << "\nRound: " << r << endl;
-
+    queries = parlay::random_shuffle(queries);
     parlay::internal::timer timer;
-    parlay::parallel_for(0, q, [&](size_t i) {
+    parlay::parallel_for(0, queries.size(), [&](size_t i) {
       uint64_t key_low_bound;
-      size_t id = queries[i].second;
-      if (id == 0) {
-        key_low_bound = entries[id].first / 2;
+      i = queries[i].second;
+      if (i == 0) {
+        key_low_bound = entries[i].first / 2;
       } else {
-        if (entries[id].first > entries[id].first + 1) {
-          key_low_bound = (entries[id].first + entries[id].first) / 2;
+        if (entries[i].first > entries[i].first + 1) {
+          key_low_bound = (entries[i].first + entries[i].first) / 2;
         } else {
-          key_low_bound = entries[id].first;
+          key_low_bound = entries[i].first;
         }
       }
-      index->scan(key_low_bound, FLAGS_scan_size, tmp[i].data());
+      auto worker_id = parlay::worker_id();
+      index->scan(key_low_bound, FLAGS_scan_size, tmp[worker_id].data());
+      if (check) {
+        auto &result = tmp[worker_id];
+        bool ok = true;
+        for (size_t j = 0; j < FLAGS_scan_size; j++) {
+          ok &= entries[i + j] == result[j];
+        }
+        res[i] = ok;
+      }
     });
     double duration = timer.stop();
     cout << "Duration: " << duration << endl;
@@ -138,23 +143,6 @@ void TestScan(parlay::sequence<pair<uint64_t, uint64_t>> &entries) {
     if (r > 0) {
       total_mops += mops;
     }
-
-    parlay::parallel_for(0, q, [&](size_t i) {
-      size_t id = queries[i].second;
-      auto &result = tmp[i];
-      bool ok = true;
-      for (size_t j = 0; j < FLAGS_scan_size; j++) {
-        ok &= entries[id + j] == result[j];
-      }
-      // if (!ok) {
-      //   for (size_t j = 0; j < num; j++) {
-      //     cout << entries[i + j].first << ' ' << entries[i + j].second << ' '
-      //          << result[j].first << ' ' << result[j].second << endl;
-      //   }
-      //   exit(0);
-      // }
-      res[id] = ok;
-    });
     if (parlay::any_of(res, [&](int x) { return x == 0; })) {
       good = false;
     }
