@@ -11,7 +11,6 @@ DEFINE_string(index, "fh_index_ro", "index name");
 DEFINE_string(dataset, "/colddata/xding9001/li/libio", "path to dataset");
 DEFINE_int32(round, 5, "# of rounds");
 DEFINE_uint64(num_keys, 0, "# of keys");
-DEFINE_uint64(scan_size, 10, "scan size");
 
 void TestReadOnly(parlay::sequence<pair<uint64_t, uint64_t>> &entries) {
   cout << "Test Read Only" << endl;
@@ -99,58 +98,58 @@ void TestScan(parlay::sequence<pair<uint64_t, uint64_t>> &entries) {
   index->bulk_load(entries.data(), n);
   cout << "End Bulk_load" << endl;
 
-  double total_mops = 0;
-  bool good = true;
-  auto queries = entries;
-  queries.resize(n - FLAGS_scan_size);
-
-  parlay::sequence tmp(
-      parlay::num_workers(),
-      parlay::sequence<pair<uint64_t, uint64_t>>(FLAGS_scan_size));
-  vector<int> res(n, 1);
-  bool check = true;
-  for (int r = 0; r < FLAGS_round; r++) {
-    cout << "\nRound: " << r << endl;
-    queries = parlay::random_shuffle(queries);
-    parlay::internal::timer timer;
-    parlay::parallel_for(0, queries.size(), [&](size_t i) {
-      uint64_t key_low_bound;
-      i = queries[i].second;
-      if (i == 0) {
-        key_low_bound = entries[i].first / 2;
-      } else {
-        if (entries[i].first > entries[i].first + 1) {
-          key_low_bound = (entries[i].first + entries[i].first) / 2;
+  vector<size_t> scan_size_list = {10, 50, 100};
+  for (auto scan_size : scan_size_list) {
+    double total_mops = 0;
+    bool good = true;
+    auto queries = entries;
+    queries.resize(n - scan_size);
+    parlay::sequence tmp(parlay::num_workers(),
+                         parlay::sequence<pair<uint64_t, uint64_t>>(scan_size));
+    vector<int> res(n, 1);
+    bool check = false;
+    for (int r = 0; r < FLAGS_round; r++) {
+      cout << "\nRound: " << r << endl;
+      queries = parlay::random_shuffle(queries);
+      parlay::internal::timer timer;
+      parlay::parallel_for(0, queries.size(), [&](size_t i) {
+        uint64_t key_low_bound;
+        i = queries[i].second;
+        if (i == 0) {
+          key_low_bound = entries[i].first / 2;
         } else {
-          key_low_bound = entries[i].first;
+          if (entries[i].first > entries[i].first + 1) {
+            key_low_bound = (entries[i].first + entries[i].first) / 2;
+          } else {
+            key_low_bound = entries[i].first;
+          }
         }
-      }
-      auto worker_id = parlay::worker_id();
-      index->scan(key_low_bound, FLAGS_scan_size, tmp[worker_id].data());
-      if (check) {
-        auto &result = tmp[worker_id];
-        bool ok = true;
-        for (size_t j = 0; j < FLAGS_scan_size; j++) {
-          ok &= entries[i + j] == result[j];
+        auto worker_id = parlay::worker_id();
+        index->scan(key_low_bound, scan_size, tmp[worker_id].data());
+        if (check) {
+          auto &result = tmp[worker_id];
+          bool ok = true;
+          for (size_t j = 0; j < scan_size; j++) {
+            ok &= entries[i + j] == result[j];
+          }
+          res[i] = ok;
         }
-        res[i] = ok;
+      });
+      double duration = timer.stop();
+      cout << "Duration: " << duration << endl;
+      double mops = (double)(queries.size()) / duration / 1e6;
+      cout << "Mops: " << mops << endl;
+      if (r > 0) {
+        total_mops += mops;
       }
-    });
-    double duration = timer.stop();
-    cout << "Duration: " << duration << endl;
-    double mops = (double)(queries.size()) / duration / 1e6;
-    cout << "Mops: " << mops << endl;
-    if (r > 0) {
-      total_mops += mops;
+      if (parlay::any_of(res, [&](int x) { return x == 0; })) {
+        good = false;
+      }
     }
-    if (parlay::any_of(res, [&](int x) { return x == 0; })) {
-      good = false;
-    }
+    cout << "good: " << (good ? "true" : "false") << endl;
+    double avg_mops = total_mops / (FLAGS_round - 1);
+    cout << "Scan(" << scan_size << ") Aerage Mops: " << avg_mops << endl;
   }
-
-  cout << "good: " << (good ? "true" : "false") << endl;
-  double avg_mops = total_mops / (FLAGS_round - 1);
-  cout << "Average Mops: " << avg_mops << endl;
   delete index;
 }
 

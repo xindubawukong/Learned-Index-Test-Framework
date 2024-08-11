@@ -5,13 +5,9 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def run_index(test_type, index, dataset):
   print(f'Running {test_type} {index} {dataset}')
-  scan_size_list = ['10', '50', '100', '1000']
-  if test_type != 'scan':
-    scan_size_list = ['0']
-  for scan_size in scan_size_list:
-    output_file = f'./log/0809-{test_type}-{scan_size}.txt'
-    command = f'./build/test -dataset={dataset} -index={index} -test_type={test_type} -scan_size={scan_size}'
-    subprocess.call(f'numactl -i all {command} >> {output_file}', shell=True)
+  output_file = f'./log/0811-{test_type}.txt'
+  command = f'./build/test -dataset={dataset} -index={index} -test_type={test_type}'
+  subprocess.call(f'numactl -i all {command} >> {output_file}', shell=True)
 
 def get_datasets():
   datasets = [
