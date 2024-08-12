@@ -2,8 +2,8 @@
 #define FH_INDEX_RW_INTERFACE_H_
 
 #include "../competitor/indexInterface.h"
-#include "./fh_index_ro/src/include/fh_index_rw/fh_index_rw.h"
 #include "./fh_index_utils.h"
+#include "fh_index_rw/fh_index_rw.h"
 
 template <class KEY_TYPE, class PAYLOAD_TYPE>
 class FHIndexRWInterface : public indexInterface<KEY_TYPE, PAYLOAD_TYPE> {
@@ -48,7 +48,7 @@ class FHIndexRWInterface : public indexInterface<KEY_TYPE, PAYLOAD_TYPE> {
               std::pair<KEY_TYPE, PAYLOAD_TYPE> *result,
               Param *param = nullptr) {}
 
-  long long memory_consumption() { return index.IndexSize(); }
+  long long memory_consumption() { assert(0); }
 
  private:
   fh_index_rw::FHIndexRW<uint64_t, kTopLevelThreshold, kSizeLowerLeaf,

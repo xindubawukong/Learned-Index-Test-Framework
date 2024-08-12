@@ -1,5 +1,5 @@
 #include "../competitor/indexInterface.h"
-#include "./fh_index_ro/src/include/fh_index_ro/fh_index_ro.h"
+#include "fh_index_ro/fh_index_ro.h"
 #include "./fh_index_utils.h"
 
 template <class KEY_TYPE, class PAYLOAD_TYPE>

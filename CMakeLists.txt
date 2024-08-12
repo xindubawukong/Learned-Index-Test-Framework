@@ -11,7 +11,10 @@ find_package(Threads REQUIRED)
 link_libraries(Threads::Threads)
 include_directories(
         ~/intel/oneapi/mkl/latest/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/parlaylib/include/
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/ours/fh_index_ro/src/include/
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/ours/fh_index_ro/third_party/parlaylib/include/
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/ours/fh_index_ro/third_party/parlayhash/include/
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/competitor/verlib/src/include/
 )
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -28,17 +31,18 @@ add_compile_options(
         -DNoHelp  # for verlib
         -g
         -O3 -march=native
-        -Wall -Wextra
+        # -Wall -Wextra
         -fno-omit-frame-pointer -ggdb -mbmi -mlzcnt
         -mavx -mavx2 -mavx512f
 )
 
 include_directories(${MKL_INCLUDE_DIRS})
 include_directories(${JEMALLOC_INCLUDE_DIR})
-include_directories(SYSTEM src/competitor/hot/src/libs/hot/commons/include)
-include_directories(SYSTEM src/competitor/hot/src/libs/hot/rowex/include)
-include_directories(SYSTEM src/competitor/hot/src/libs/hot/single-threaded/include)
-include_directories(SYSTEM src/competitor/hot/src/libs/idx/content-helpers/include)
+
+# include_directories(SYSTEM src/competitor/hot/src/libs/hot/commons/include)
+# include_directories(SYSTEM src/competitor/hot/src/libs/hot/rowex/include)
+# include_directories(SYSTEM src/competitor/hot/src/libs/hot/single-threaded/include)
+# include_directories(SYSTEM src/competitor/hot/src/libs/idx/content-helpers/include)
 
 # add_subdirectory(src/competitor/wormhole)
 # add_subdirectory(src/competitor/wormhole_u64)
