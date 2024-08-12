@@ -23,6 +23,7 @@
 #include "../ours/empty_index.h"
 #include "../ours/naive_index_interface.h"
 #include "../ours/fh_index_ro_interface.h"
+#include "../ours/fh_index_rw_interface.h"
 #include "./sali/sali.h"
 #include "./fast/fast.h"
 #include "./verlib/verlib_arttree.h"
@@ -91,6 +92,9 @@ indexInterface<KEY_TYPE, PAYLOAD_TYPE> *get_index(std::string index_type) {
   }
   else if (index_type == "fh_index_ro") {
     index = new FHIndexROInterface<KEY_TYPE, PAYLOAD_TYPE>;
+  }
+  else if (index_type == "fh_index_rw") {
+    index = new FHIndexRWInterface<KEY_TYPE, PAYLOAD_TYPE>;
   }
   else if (index_type == "sali") {
     index = new SaliInterface<KEY_TYPE, PAYLOAD_TYPE>;

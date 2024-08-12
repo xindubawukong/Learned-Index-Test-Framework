@@ -7,7 +7,7 @@ def get_attr(lines, attr, default='0'):
   return default
 
 def main():
-  f = open('./log/scan-0808.txt', 'r')
+  f = open('./log/0811-scan.txt', 'r')
   all_lines = f.readlines()
   f.close()
   ids = []
@@ -23,7 +23,7 @@ def main():
     index = get_attr(lines, 'Index:')
     dataset = get_attr(lines, 'Dataset:').split('/')[-1]
     print(index, dataset)
-    mops = float(get_attr(lines, 'Average Mops:'))
+    mops = float(get_attr(lines, 'Scan(100) Aerage Mops:'))
     mem = float(get_attr(lines, 'Jemalloc memory allocated')) / 1000000000
     print(mops, mem)
     num_fgds = 0
