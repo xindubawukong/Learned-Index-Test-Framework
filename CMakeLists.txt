@@ -28,10 +28,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_compile_options(
-        # -DNoHelp  # for verlib
+        -DNoHelp  # for verlib
         -g
         -O3 -march=native
-        # -Wall -Wextra
+        -Wall -Wextra
         -fno-omit-frame-pointer -ggdb -mbmi -mlzcnt
         -mavx -mavx2 -mavx512f
 )
