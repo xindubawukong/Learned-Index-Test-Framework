@@ -4,7 +4,7 @@
 
 template <class KEY_TYPE, class PAYLOAD_TYPE>
 class VerlibARTTreeInterface : public indexInterface<KEY_TYPE, PAYLOAD_TYPE> {
-public:
+ public:
   static_assert(std::is_same_v<KEY_TYPE, uint64_t>,
                 "FH_index_RO must have uint64_t key type");
 
@@ -33,7 +33,7 @@ public:
 
   bool update(KEY_TYPE key, PAYLOAD_TYPE value, Param *param = nullptr) {}
 
-  bool remove(KEY_TYPE key, Param *param = nullptr) {}
+  bool remove(KEY_TYPE key, Param *param = nullptr) { return map.remove(key); }
 
   size_t scan(KEY_TYPE key_low_bound, size_t key_num,
               std::pair<KEY_TYPE, PAYLOAD_TYPE> *result,
@@ -48,6 +48,6 @@ public:
 
   long long memory_consumption() {}
 
-private:
+ private:
   verlib_arttree::ordered_map<KEY_TYPE, PAYLOAD_TYPE> map;
 };

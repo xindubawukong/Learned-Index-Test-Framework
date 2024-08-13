@@ -65,25 +65,28 @@ void TestReadWrite(parlay::sequence<pair<uint64_t, uint64_t>> &entries0) {
   auto index = get_index<uint64_t, uint64_t>(FLAGS_index);
   index->bulk_load(e1.data(), e1.size());
   cout << "End Bulk_load" << endl;
-
   parlay::internal::timer timer;
   parlay::parallel_for(0, e2.size(), [&](int i) {
     bool ok = index->put(e2[i].first, e2[i].second);
     assert(ok);
   });
-  double duration = timer.stop();
-  cout << "Insert duration: " << duration << endl;
-  double mops = (double)n / duration / 1e6;
-  cout << "Mops: " << mops << endl;
-
+  timer.stop();
   parlay::parallel_for(0, entries.size(), [&](size_t i) {
     uint64_t val;
     bool ok = index->get(entries[i].first, val);
     assert(ok && val == entries[i].second);
   });
-
+  timer.start();
+  parlay::parallel_for(0, e2.size(), [&](int i) {
+    bool ok = index->remove(e2[i].first);
+    assert(ok);
+  });
+  timer.stop();
+  double duration = timer.total_time();
+  cout << "Insert and Delete duration: " << duration << endl;
+  double mops = (double)n / duration / 1e6;
+  cout << "Mops: " << mops << endl;
   cout << "All good!" << endl;
-
   delete index;
 }
 
