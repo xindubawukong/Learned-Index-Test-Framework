@@ -6,51 +6,11 @@
 
 using namespace std;
 
-DEFINE_string(test_type, "ro", "ro/rw/scan");
+DEFINE_string(test_type, "ro", "ro/rw");
 DEFINE_string(index, "fh_index_ro", "index name");
-DEFINE_string(dataset, "/colddata/xding9001/li/libio", "path to dataset");
-DEFINE_int32(round, 5, "# of rounds");
+DEFINE_string(dataset, "/data/xding9001/li/libio", "path to dataset");
+DEFINE_int32(round, 4, "# of rounds");
 DEFINE_uint64(num_keys, 0, "# of keys");
-
-void TestReadOnly(parlay::sequence<pair<uint64_t, uint64_t>> &entries) {
-  cout << "Test Read Only" << endl;
-  auto n = entries.size();
-  cout << "Start bulk_load" << endl;
-  auto index = get_index<uint64_t, uint64_t>(FLAGS_index);
-  index->bulk_load(entries.data(), n);
-  cout << "End Bulk_load" << endl;
-  ReportJemallocAllocated();
-
-  double total_mops = 0;
-  bool good = true;
-  vector<int> res(n);
-  for (int r = 0; r < FLAGS_round; r++) {
-    cout << "\nRound: " << r << endl;
-    auto ids = parlay::random_permutation(n);
-
-    parlay::internal::timer timer;
-    parlay::parallel_for(0, n, [&](int i) {
-      uint64_t val;
-      bool ok = index->get(entries[ids[i]].first, val);
-      res[i] = (ok && val == ids[i]);
-    });
-    double duration = timer.stop();
-    if (parlay::any_of(res, [&](int x) { return x == 0; })) good = false;
-
-    cout << "Duration: " << duration << endl;
-    double mops = (double)n / duration / 1e6;
-    cout << "Mops: " << mops << endl;
-
-    if (r > 0) {
-      total_mops += mops;
-    }
-  }
-
-  cout << "good: " << (good ? "true" : "false") << endl;
-  double avg_mops = total_mops / (FLAGS_round - 1);
-  cout << "Average Mops: " << avg_mops << endl;
-  delete index;
-}
 
 void TestReadWrite(parlay::sequence<pair<uint64_t, uint64_t>> &entries0) {
   auto entries = entries0;
@@ -94,12 +54,40 @@ void TestReadWrite(parlay::sequence<pair<uint64_t, uint64_t>> &entries0) {
 alexol, lippol, xindex: result not correct
 finedex: stuck on scan queries
 */
-void TestScan(parlay::sequence<pair<uint64_t, uint64_t>> &entries) {
+void TestRead(parlay::sequence<pair<uint64_t, uint64_t>> &entries) {
   auto n = entries.size();
   cout << "Start bulk_load" << endl;
   auto index = get_index<uint64_t, uint64_t>(FLAGS_index);
   index->bulk_load(entries.data(), n);
   cout << "End Bulk_load" << endl;
+
+  double total_mops = 0;
+  bool good = true;
+  vector<int> res(n);
+  for (int r = 0; r < FLAGS_round; r++) {
+    cout << "\nRound: " << r << endl;
+    auto ids = parlay::random_permutation(n);
+
+    parlay::internal::timer timer;
+    parlay::parallel_for(0, n, [&](int i) {
+      uint64_t val;
+      bool ok = index->get(entries[ids[i]].first, val);
+      res[i] = (ok && val == ids[i]);
+    });
+    double duration = timer.stop();
+    if (parlay::any_of(res, [&](int x) { return x == 0; })) good = false;
+
+    cout << "Duration: " << duration << endl;
+    double mops = (double)n / duration / 1e6;
+    cout << "Mops: " << mops << endl;
+
+    if (r > 0) {
+      total_mops += mops;
+    }
+  }
+  cout << "good: " << (good ? "true" : "false") << endl;
+  double avg_mops = total_mops / (FLAGS_round - 1);
+  cout << "RO Average Mops: " << avg_mops << endl;
 
   vector<size_t> scan_size_list = {10, 50, 100};
   for (auto scan_size : scan_size_list) {
@@ -170,11 +158,9 @@ int main(int argc, char **argv) {
   });
 
   if (FLAGS_test_type == "ro") {
-    TestReadOnly(entries);
+    TestRead(entries);
   } else if (FLAGS_test_type == "rw") {
     TestReadWrite(entries);
-  } else if (FLAGS_test_type == "scan") {
-    TestScan(entries);
   } else {
     assert(0);
   }

@@ -28,7 +28,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_compile_options(
-        -DNoHelp  # for verlib
+        -DPARLAY_USE_STD_ALLOC
+        -DUSE_MALLOC  # for verlib not to use parlay allocator
+        -DNoHelp  # for verlib to use lock
         -g
         -O3 -march=native
         -Wall -Wextra

@@ -5,7 +5,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def run_index(test_type, index, dataset):
   print(f'Running {test_type} {index} {dataset}')
-  output_file = f'./log/0812-{test_type}.txt'
+  output_file = f'./log/0813-{test_type}.txt'
   command = f'./build/test -dataset={dataset} -index={index} -test_type={test_type}'
   subprocess.call(f'numactl -i all {command} >> {output_file}', shell=True)
 
@@ -26,7 +26,7 @@ def get_datasets():
     'osm_cellids_800M_uint64',
   ]
   for dataset in datasets:
-    yield f'/colddata/xding9001/li/{dataset}'
+    yield f'/data/xding9001/li/{dataset}'
 
 def get_index_names():
   return [
@@ -45,7 +45,7 @@ def get_index_names():
 
 def main():
   subprocess.call('mkdir -p log', shell=True)
-  for test_type in ['rw']:
+  for test_type in ['ro']:
     for index in get_index_names():
       for dataset in get_datasets():
         run_index(test_type, index, dataset)
