@@ -57,9 +57,13 @@ finedex: stuck on scan queries
 void TestRead(parlay::sequence<pair<uint64_t, uint64_t>> &entries) {
   auto n = entries.size();
   cout << "Start bulk_load" << endl;
+  auto memory_before_bulk_load = GetJemallocAllocated();
   auto index = get_index<uint64_t, uint64_t>(FLAGS_index);
   index->bulk_load(entries.data(), n);
+  auto memory_after_bulk_load = GetJemallocAllocated();
   cout << "End Bulk_load" << endl;
+  cout << "Index memory usage: "
+       << memory_after_bulk_load - memory_before_bulk_load << endl;
 
   double total_mops = 0;
   bool good = true;
@@ -139,7 +143,7 @@ void TestRead(parlay::sequence<pair<uint64_t, uint64_t>> &entries) {
     }
     cout << "good: " << (good ? "true" : "false") << endl;
     double avg_mops = total_mops / (FLAGS_round - 1);
-    cout << "Scan(" << scan_size << ") Aerage Mops: " << avg_mops << endl;
+    cout << "Scan(" << scan_size << ") Average Mops: " << avg_mops << endl;
   }
   delete index;
 }

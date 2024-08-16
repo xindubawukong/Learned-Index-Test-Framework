@@ -5,7 +5,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def run_index(test_type, index, dataset):
   print(f'Running {test_type} {index} {dataset}')
-  output_file = f'./log/0813-{test_type}.txt'
+  output_file = f'./log/0816-{test_type}.txt'
   command = f'./build/test -dataset={dataset} -index={index} -test_type={test_type}'
   subprocess.call(f'numactl -i all {command} >> {output_file}', shell=True)
 
@@ -30,7 +30,6 @@ def get_datasets():
 
 def get_index_names():
   return [
-    'empty',
     # 'naive',
     'fh_index_ro',
     'pgm',

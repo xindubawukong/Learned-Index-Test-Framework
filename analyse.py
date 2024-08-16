@@ -7,7 +7,7 @@ def get_attr(lines, attr, default='0'):
   return default
 
 def main():
-  f = open('./log/0812-rw-2.txt', 'r')
+  f = open('./log/0816-ro.txt', 'r')
   all_lines = f.readlines()
   f.close()
   ids = []
@@ -23,14 +23,9 @@ def main():
     index = get_attr(lines, 'Index:')
     dataset = get_attr(lines, 'Dataset:').split('/')[-1]
     print(index, dataset)
-    mops = float(get_attr(lines, 'Mops:'))
-    mem = float(get_attr(lines, 'Jemalloc memory allocated')) / 1000000000
+    mops = float(get_attr(lines, 'Scan(100) Aerage Mops:'))
+    mem = float(get_attr(lines, 'Index memory usage:')) / 1000000000
     print(mops, mem)
-    num_fgds = 0
-    if index == 'fh_index_ro':
-      for line in lines:
-        if line.startswith('Start key:'):
-          num_fgds += 1
 
     if index not in res:
       res[index] = [index]
