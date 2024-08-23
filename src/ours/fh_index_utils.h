@@ -4,13 +4,13 @@
 #include <cstddef>
 
 // FHIndexRW
-const size_t kSizeLowerLeaf = 32;
+const size_t kSizeLowerLeaf = 16;
 const size_t kSizeUpperLeaf = 64;
 const size_t kFingerPerBlockLeaf = 8;
 
 const size_t kSizeLowerInternal = 8;
-const size_t kSizeUpperInternal = 16;
-const size_t kFingerPerBlockInternal = 2;
+const size_t kSizeUpperInternal = 32;
+const size_t kFingerPerBlockInternal = 4;
 
 // FHIndexRO
 const size_t kBlockSize = 64;
