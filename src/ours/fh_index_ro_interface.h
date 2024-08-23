@@ -1,6 +1,6 @@
 #include "../competitor/indexInterface.h"
-#include "fh_index_ro/fh_index_ro.h"
 #include "./fh_index_utils.h"
+#include "fh_index_ro/fh_index_ro.h"
 
 template <class KEY_TYPE, class PAYLOAD_TYPE>
 class FHIndexROInterface : public indexInterface<KEY_TYPE, PAYLOAD_TYPE> {
@@ -12,13 +12,9 @@ class FHIndexROInterface : public indexInterface<KEY_TYPE, PAYLOAD_TYPE> {
 
   void bulk_load(std::pair<KEY_TYPE, PAYLOAD_TYPE> *key_value, size_t num,
                  Param *param = nullptr) {
-    std::vector<KEY_TYPE> keys(num);
-    std::vector<PAYLOAD_TYPE> values(num);
-    parlay::parallel_for(0, num, [&](size_t i) {
-      keys[i] = key_value[i].first;
-      values[i] = key_value[i].second;
-    });
-    index.BulkLoad(keys, values);
+    index.BulkLoad(
+        num, [&](size_t i) { return key_value[i].first; },
+        [&](size_t i) { return key_value[i].second; });
   }
 
   bool get(KEY_TYPE key, PAYLOAD_TYPE &val, Param *param = nullptr) {

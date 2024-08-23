@@ -93,6 +93,8 @@ void TestRead(parlay::sequence<pair<uint64_t, uint64_t>> &entries) {
   double avg_mops = total_mops / (FLAGS_round - 1);
   cout << "RO Average Mops: " << avg_mops << endl;
 
+  return;
+
   vector<size_t> scan_size_list = {10, 50, 100};
   for (auto scan_size : scan_size_list) {
     double total_mops = 0;
