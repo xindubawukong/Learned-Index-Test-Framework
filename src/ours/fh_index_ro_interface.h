@@ -15,12 +15,18 @@ class FHIndexROInterface : public indexInterface<KEY_TYPE, PAYLOAD_TYPE> {
     index.BulkLoad(
         num, [&](size_t i) { return key_value[i].first; },
         [&](size_t i) { return key_value[i].second; });
+    std::cout << "index.internal_levels_.size(): "
+              << index.internal_levels_.size() << std::endl;
   }
 
   bool get(KEY_TYPE key, PAYLOAD_TYPE &val, Param *param = nullptr) {
-    size_t lb = index.LowerBound(key);
-    val = index.leaf_level_.GetValue(lb);
-    return true;
+    auto val_opt = index.Find(key);
+    if (val_opt.has_value()) {
+      val = val_opt.value();
+      return true;
+    } else {
+      return false;
+    }
   }
 
   bool put(KEY_TYPE key, PAYLOAD_TYPE value, Param *param = nullptr) {

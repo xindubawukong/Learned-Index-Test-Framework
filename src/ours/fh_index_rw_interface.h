@@ -18,6 +18,8 @@ class FHIndexRWInterface : public indexInterface<KEY_TYPE, PAYLOAD_TYPE> {
     index.BulkLoad(
         num, [&](size_t i) { return key_value[i].first; },
         [&](size_t i) { return key_value[i].second; });
+    std::cout << "index.internal_levels_.size(): "
+              << index.internal_levels_.size() << std::endl;
   }
 
   bool get(KEY_TYPE key, PAYLOAD_TYPE &val, Param *param = nullptr) {
