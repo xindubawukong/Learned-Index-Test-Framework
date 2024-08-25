@@ -7,7 +7,7 @@ def get_attr(lines, attr, default='0'):
   return default
 
 def main():
-  f = open('./log/0816-ro.txt', 'r')
+  f = open('./log/0825-ro.txt', 'r')
   all_lines = f.readlines()
   f.close()
   ids = []
@@ -23,9 +23,9 @@ def main():
     index = get_attr(lines, 'Index:')
     dataset = get_attr(lines, 'Dataset:').split('/')[-1]
     print(index, dataset)
-    mops = float(get_attr(lines, 'Scan(100) Aerage Mops:'))
+    mops = float(get_attr(lines, 'Single Read Average Mops:'))
     mem = float(get_attr(lines, 'Index memory usage:')) / 1000000000
-    print(mops, mem)
+    # print(mops, mem)
 
     if index not in res:
       res[index] = [index]

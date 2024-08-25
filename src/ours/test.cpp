@@ -66,32 +66,33 @@ void TestRead(parlay::sequence<pair<uint64_t, uint64_t>> &entries) {
   cout << "Index memory usage: "
        << memory_after_bulk_load - memory_before_bulk_load << endl;
 
-  if (FLAGS_index == "fh_index_rw") {
-    parlay::parlay_unordered_map<uint64_t, uint64_t, fh_index::internal::hash>
-        hash_table(200000000);
+  // if (FLAGS_index == "fh_index_rw") {
+  //   parlay::parlay_unordered_map<uint64_t, uint64_t, fh_index::internal::hash>
+  //       hash_table(200000000);
 
-    parlay::sequence<uint64_t> a(n);
-    parlay::parallel_for(0, n, [&](size_t i) { a[i] = parlay::hash64_2(i); });
-    // parlay::sort_inplace(a);
+  //   parlay::sequence<uint64_t> a(n);
+  //   parlay::parallel_for(0, n, [&](size_t i) { a[i] = parlay::hash64_2(i); });
+  //   // parlay::sort_inplace(a);
 
-    parlay::parallel_for(0, n, [&](size_t i) { hash_table.Insert(a[i], i); });
+  //   parlay::parallel_for(0, n, [&](size_t i) { hash_table.Insert(a[i], i); });
 
-    parlay::internal::timer tm;
-    parlay::parallel_for(0, n,
-                         [&](size_t i) { assert(hash_table.Find(a[i]) == i); });
-    auto duration = tm.stop();
+  //   parlay::internal::timer tm;
+  //   parlay::parallel_for(0, n,
+  //                        [&](size_t i) { assert(hash_table.Find(a[i]) == i); });
+  //   auto duration = tm.stop();
 
-    cout << "Duration: " << duration << endl;
-    double mops = (double)n / duration / 1e6;
-    cout << "Hash Mops: " << mops << endl;
-  }
+  //   cout << "Duration: " << duration << endl;
+  //   double mops = (double)n / duration / 1e6;
+  //   cout << "Hash Mops: " << mops << endl;
+  // }
 
   double total_mops = 0;
   bool good = true;
-  vector<int> res(n);
+  vector<int> res(n, 1);
   for (int r = 0; r < FLAGS_round; r++) {
     cout << "\nRound: " << r << endl;
     auto ids = parlay::random_permutation(n);
+    // parlay::sequence<size_t> ids = {n/2};
 
     parlay::internal::timer timer;
     parlay::parallel_for(0, n, [&](int i) {
