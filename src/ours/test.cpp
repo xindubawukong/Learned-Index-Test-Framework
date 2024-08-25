@@ -112,12 +112,12 @@ void TestRead(parlay::sequence<pair<uint64_t, uint64_t>> &entries) {
         q, [&](size_t i) -> int { return res[i] == entries[ids[i]].second; });
     auto bad = parlay::count(good, 0);
     cout << "bad: " << bad << endl;
-    for (size_t i = 0; i < q; i++) {
-      if (good[i] == 0) {
-        cout << ids[i] << ' ' << entries[ids[i]].first << ' '
-             << entries[ids[i]].second << ' ' << res[i] << endl;
-      }
-    }
+    // for (size_t i = 0; i < q; i++) {
+    //   if (good[i] == 0) {
+    //     cout << ids[i] << ' ' << entries[ids[i]].first << ' '
+    //          << entries[ids[i]].second << ' ' << res[i] << endl;
+    //   }
+    // }
   }
 
   double avg_mops = total_mops / (FLAGS_round - 1);
