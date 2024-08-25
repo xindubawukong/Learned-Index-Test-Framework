@@ -12,19 +12,19 @@ def run_index(test_type, index, dataset):
 def get_datasets():
   yield 'uniform'
   datasets = [
-    # 'books',
-    # 'covid',
-    # 'fb',
-    # 'genome',
-    # 'history',
-    # 'libio',
-    # 'osm',
-    # 'planet',
-    # 'stack',
-    # 'wise',
-    # 'wiki_ts_200M_uint64',
-    # 'books_800M_uint64',
-    # 'osm_cellids_800M_uint64',
+    'books',
+    'covid',
+    'fb',
+    'genome',
+    'history',
+    'libio',
+    'osm',
+    'planet',
+    'stack',
+    'wise',
+    'wiki_ts_200M_uint64',
+    'books_800M_uint64',
+    'osm_cellids_800M_uint64',
   ]
   for dataset in datasets:
     yield f'/data/xding9001/li/{dataset}'
