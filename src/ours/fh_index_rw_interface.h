@@ -48,7 +48,7 @@ class FHIndexRWInterface : public indexInterface<KEY_TYPE, PAYLOAD_TYPE> {
 
   long long memory_consumption() { assert(0); }
 
- private:
+ public:
   fh_index_rw::FHIndexRW<uint64_t, kTopLevelThreshold, kSizeLowerLeaf,
                          kSizeUpperLeaf, kFingerPerBlockLeaf,
                          kSizeLowerInternal, kSizeUpperInternal,

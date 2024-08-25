@@ -33,7 +33,7 @@ add_compile_options(
         -DNoHelp  # for verlib to use lock
         -g
         -O3 -march=native
-        -Wall -Wextra
+        # -Wall -Wextra
         -fno-omit-frame-pointer -ggdb -mbmi -mlzcnt
         -mavx -mavx2 -mavx512f
 )

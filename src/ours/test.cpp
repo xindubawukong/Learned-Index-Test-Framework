@@ -8,7 +8,8 @@ using namespace std;
 
 DEFINE_string(test_type, "ro", "ro/rw");
 DEFINE_string(index, "fh_index_ro", "index name");
-DEFINE_string(dataset, "/data/xding9001/li/libio", "path to dataset");
+DEFINE_string(dataset, "/data/xding9001/li/libio",
+              "path to dataset, or uniform");
 DEFINE_int32(round, 4, "# of rounds");
 DEFINE_uint64(num_keys, 0, "# of keys");
 
@@ -65,6 +66,26 @@ void TestRead(parlay::sequence<pair<uint64_t, uint64_t>> &entries) {
   cout << "Index memory usage: "
        << memory_after_bulk_load - memory_before_bulk_load << endl;
 
+  if (FLAGS_index == "fh_index_rw") {
+    parlay::parlay_unordered_map<uint64_t, uint64_t, fh_index::internal::hash>
+        hash_table(200000000);
+
+    parlay::sequence<uint64_t> a(n);
+    parlay::parallel_for(0, n, [&](size_t i) { a[i] = parlay::hash64_2(i); });
+    // parlay::sort_inplace(a);
+
+    parlay::parallel_for(0, n, [&](size_t i) { hash_table.Insert(a[i], i); });
+
+    parlay::internal::timer tm;
+    parlay::parallel_for(0, n,
+                         [&](size_t i) { assert(hash_table.Find(a[i]) == i); });
+    auto duration = tm.stop();
+
+    cout << "Duration: " << duration << endl;
+    double mops = (double)n / duration / 1e6;
+    cout << "Hash Mops: " << mops << endl;
+  }
+
   double total_mops = 0;
   bool good = true;
   vector<int> res(n);
@@ -91,7 +112,7 @@ void TestRead(parlay::sequence<pair<uint64_t, uint64_t>> &entries) {
   }
   cout << "good: " << (good ? "true" : "false") << endl;
   double avg_mops = total_mops / (FLAGS_round - 1);
-  cout << "RO Average Mops: " << avg_mops << endl;
+  cout << "Single Read Average Mops: " << avg_mops << endl;
 
   return;
 
@@ -157,7 +178,12 @@ int main(int argc, char **argv) {
   cout << "Index: " << FLAGS_index << endl;
   cout << "Dataset: " << FLAGS_dataset << endl;
 
-  auto entries = LoadEntries(FLAGS_dataset, FLAGS_num_keys);
+  parlay::sequence<pair<uint64_t, uint64_t>> entries;
+  if (FLAGS_dataset == "uniform") {
+    entries = UniformRandomEntries(FLAGS_num_keys);
+  } else {
+    entries = LoadEntries(FLAGS_dataset, FLAGS_num_keys);
+  }
 
   parlay::parallel_for(1, entries.size(), [&](size_t i) {
     assert(entries[i].first > entries[i - 1].first);
