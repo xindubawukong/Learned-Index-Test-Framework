@@ -91,37 +91,32 @@ void TestRead(parlay::sequence<pair<uint64_t, uint64_t>> &entries) {
   // }
 
   double total_mops = 0;
-  parlay::sequence<uint64_t> res(n);
+  bool good = true;
+  vector<int> res(n);
   for (int r = 0; r < FLAGS_round; r++) {
     cout << "\nRound: " << r << endl;
     auto ids = parlay::random_permutation(n);
-    // parlay::sequence<size_t> ids = {2073286};
-    size_t q = ids.size();
+
     parlay::internal::timer timer;
-    parlay::parallel_for(
-        0, q, [&](int i) { index->get(entries[ids[i]].first, res[i]); });
+    parlay::parallel_for(0, n, [&](int i) {
+      uint64_t val;
+      bool ok = index->get(entries[ids[i]].first, val);
+      res[i] = (ok && val == ids[i]);
+    });
     double duration = timer.stop();
+    if (parlay::any_of(res, [&](int x) { return x == 0; })) good = false;
+
     cout << "Duration: " << duration << endl;
     double mops = (double)n / duration / 1e6;
     cout << "Mops: " << mops << endl;
+
     if (r > 0) {
       total_mops += mops;
     }
-
-    auto good = parlay::delayed_tabulate(
-        q, [&](size_t i) -> int { return res[i] == entries[ids[i]].second; });
-    auto bad = parlay::count(good, 0);
-    cout << "bad: " << bad << endl;
-    // for (size_t i = 0; i < q; i++) {
-    //   if (good[i] == 0) {
-    //     cout << ids[i] << ' ' << entries[ids[i]].first << ' '
-    //          << entries[ids[i]].second << ' ' << res[i] << endl;
-    //   }
-    // }
   }
-
+  cout << "good: " << (good ? "true" : "false") << endl;
   double avg_mops = total_mops / (FLAGS_round - 1);
-  cout << "Single Read Average Mops: " << avg_mops << endl;
+  cout << "RO Average Mops: " << avg_mops << endl;
 
   return;
 
