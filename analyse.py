@@ -23,7 +23,7 @@ def main():
     index = get_attr(lines, 'Index:')
     dataset = get_attr(lines, 'Dataset:').split('/')[-1]
     print(index, dataset)
-    mops = float(get_attr(lines, 'Single Read Average Mops:'))
+    mops = float(get_attr(lines, 'RO Average Mops:'))
     mem = float(get_attr(lines, 'Index memory usage:')) / 1000000000
     # print(mops, mem)
 
